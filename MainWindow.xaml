@@ -1,0 +1,1556 @@
+<Window x:Class="Lvchaxs_ZH.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Lvchaxs_ZH"
+        xmlns:converters="clr-namespace:Lvchaxs_ZH.Converters"
+        mc:Ignorable="d"
+        Title="原神账号" 
+        MinHeight="170" 
+        MinWidth="730"
+        WindowStartupLocation="CenterScreen"
+        MouseDown="Window_MouseDown" 
+        Height="473" 
+        Width="743"
+        x:Name="mainWindow">
+
+    <Window.Resources>
+        <!-- 缓动函数 -->
+        <ExponentialEase x:Key="ExponentialEaseOut" EasingMode="EaseOut" Exponent="2"/>
+        <QuadraticEase x:Key="QuadEaseOut" EasingMode="EaseOut"/>
+        <CubicEase x:Key="CubicEaseOut" EasingMode="EaseOut"/>
+
+        <!-- 颜色定义 -->
+        <Color x:Key="PrimaryBlueColor">#FF1A56DB</Color>
+        <Color x:Key="PrimaryBlueHoverColor">#FF4D8DF0</Color>
+        <Color x:Key="PrimaryGreenColor">#10B981</Color>
+        <Color x:Key="PrimaryGreenHoverColor">#059669</Color>
+        <Color x:Key="DangerRedColor">#EF4444</Color>
+        <Color x:Key="DangerRedHoverColor">#DC2626</Color>
+        <Color x:Key="DangerRedPressedColor">#B91C1C</Color>
+        <Color x:Key="GrayTextColor">#374151</Color>
+        <Color x:Key="LightGrayTextColor">#6B7280</Color>
+        <Color x:Key="BorderGrayColor">#E5E7EB</Color>
+        <Color x:Key="BackgroundGrayColor">#F9FAFB</Color>
+        <Color x:Key="WarningOrangeColor">#F97316</Color>
+        <Color x:Key="PurpleColor">#7C3AED</Color>
+        <Color x:Key="SearchBorderColor">#FFDDDDDD</Color>
+        <Color x:Key="WarningYellowColor">#D97706</Color>
+        <Color x:Key="LightPurpleColor">#F3E8FF</Color>
+
+        <!-- 画笔定义 -->
+        <SolidColorBrush x:Key="PrimaryBlueBrush" Color="{StaticResource PrimaryBlueColor}"/>
+        <SolidColorBrush x:Key="PrimaryBlueHoverBrush" Color="{StaticResource PrimaryBlueHoverColor}"/>
+        <SolidColorBrush x:Key="PrimaryGreenBrush" Color="{StaticResource PrimaryGreenColor}"/>
+        <SolidColorBrush x:Key="PrimaryGreenHoverBrush" Color="{StaticResource PrimaryGreenHoverColor}"/>
+        <SolidColorBrush x:Key="DangerRedBrush" Color="{StaticResource DangerRedColor}"/>
+        <SolidColorBrush x:Key="DangerRedHoverBrush" Color="{StaticResource DangerRedHoverColor}"/>
+        <SolidColorBrush x:Key="DangerRedPressedBrush" Color="{StaticResource DangerRedPressedColor}"/>
+        <SolidColorBrush x:Key="GrayTextBrush" Color="{StaticResource GrayTextColor}"/>
+        <SolidColorBrush x:Key="LightGrayTextBrush" Color="{StaticResource LightGrayTextColor}"/>
+        <SolidColorBrush x:Key="BorderGrayBrush" Color="{StaticResource BorderGrayColor}"/>
+        <SolidColorBrush x:Key="BackgroundGrayBrush" Color="{StaticResource BackgroundGrayColor}"/>
+        <SolidColorBrush x:Key="WarningOrangeBrush" Color="{StaticResource WarningOrangeColor}"/>
+        <SolidColorBrush x:Key="PurpleBrush" Color="{StaticResource PurpleColor}"/>
+        <SolidColorBrush x:Key="SearchBorderBrush" Color="{StaticResource SearchBorderColor}"/>
+        <SolidColorBrush x:Key="WarningYellowBrush" Color="{StaticResource WarningYellowColor}"/>
+        <SolidColorBrush x:Key="LightPurpleBrush" Color="{StaticResource LightPurpleColor}"/>
+
+        <!-- 转换器 -->
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converters:BoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" Invert="True" />
+
+        <!-- 排序箭头样式 -->
+        <Style x:Key="SortArrowStyle" TargetType="Path">
+            <Setter Property="Stretch" Value="Uniform"/>
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="Height" Value="8"/>
+            <Setter Property="Fill" Value="{StaticResource LightGrayTextBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="4,0,0,0"/>
+            <Setter Property="Visibility" Value="Visible"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+        </Style>
+
+        <!-- 活动排序箭头样式 -->
+        <Style x:Key="ActiveSortArrowStyle" TargetType="Path" BasedOn="{StaticResource SortArrowStyle}">
+            <Setter Property="Fill" Value="{StaticResource PrimaryBlueBrush}"/>
+        </Style>
+
+        <!-- 按钮基础样式 -->
+        <Style x:Key="ButtonBaseStyle" TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <!-- 蓝色按钮样式 -->
+        <Style x:Key="BlueButtonStyle" TargetType="Button" BasedOn="{StaticResource ButtonBaseStyle}">
+            <Setter Property="Background" Value="{StaticResource PrimaryBlueBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Height" Value="33"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}"
+                                BorderThickness="1" 
+                                BorderBrush="Transparent"
+                                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource PrimaryBlueHoverBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBlueHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource PrimaryBlueBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBlueBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 绿色按钮样式 -->
+        <Style x:Key="GreenButtonStyle" TargetType="Button" BasedOn="{StaticResource BlueButtonStyle}">
+            <Setter Property="Background" Value="{StaticResource PrimaryGreenBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource PrimaryGreenHoverBrush}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="{StaticResource PrimaryGreenBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 危险按钮样式 -->
+        <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource BlueButtonStyle}">
+            <Setter Property="Background" Value="{StaticResource DangerRedBrush}"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{StaticResource DangerRedHoverBrush}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="{StaticResource DangerRedPressedBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 边框按钮样式 -->
+        <Style x:Key="OutlineButtonStyle" TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource GrayTextBrush}"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F3F4F6"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#9CA3AF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#E5E7EB"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#6B7280"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 编辑按钮样式 -->
+        <Style x:Key="EditButtonStyle" TargetType="Button" BasedOn="{StaticResource OutlineButtonStyle}">
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="MinWidth" Value="60"/>
+        </Style>
+
+        <!-- 清除按钮样式 -->
+        <Style x:Key="ClearButtonStyle" TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="20"/>
+            <Setter Property="Height" Value="20"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <TextBlock x:Name="clearText" 
+                                       Text="×" 
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       RenderTransformOrigin="0.5,0.5">
+                                <TextBlock.RenderTransform>
+                                    <ScaleTransform x:Name="clearScale" ScaleX="1" ScaleY="1"/>
+                                </TextBlock.RenderTransform>
+                            </TextBlock>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="clearText" Property="Foreground" Value="{StaticResource DangerRedBrush}"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="clearScale"
+                                                             Storyboard.TargetProperty="ScaleX"
+                                                             To="1.3" Duration="0:0:0.1"
+                                                             EasingFunction="{StaticResource ExponentialEaseOut}"/>
+                                            <DoubleAnimation Storyboard.TargetName="clearScale"
+                                                             Storyboard.TargetProperty="ScaleY"
+                                                             To="1.3" Duration="0:0:0.1"
+                                                             EasingFunction="{StaticResource ExponentialEaseOut}"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="clearScale"
+                                                             Storyboard.TargetProperty="ScaleX"
+                                                             To="1" Duration="0:0:0.1"
+                                                             EasingFunction="{StaticResource ExponentialEaseOut}"/>
+                                            <DoubleAnimation Storyboard.TargetName="clearScale"
+                                                             Storyboard.TargetProperty="ScaleY"
+                                                             To="1" Duration="0:0:0.1"
+                                                             EasingFunction="{StaticResource ExponentialEaseOut}"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="clearText" Property="Foreground" Value="{StaticResource DangerRedHoverBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- X按钮样式 -->
+        <Style x:Key="XCloseButtonStyle" TargetType="Button" BasedOn="{StaticResource ClearButtonStyle}">
+            <Setter Property="Width" Value="30"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource DangerRedBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 复制按钮样式 -->
+        <Style x:Key="CopyButtonStyle" TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#9CA3AF"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" 
+                                Background="Transparent"
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                              RenderTransformOrigin="0.5,0.5">
+                                <ContentPresenter.RenderTransform>
+                                    <ScaleTransform x:Name="contentScale" ScaleX="1" ScaleY="1"/>
+                                </ContentPresenter.RenderTransform>
+                            </ContentPresenter>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="contentScale"
+                                                             Storyboard.TargetProperty="ScaleX"
+                                                             To="1.2" Duration="0:0:0.15"
+                                                             EasingFunction="{StaticResource ExponentialEaseOut}"/>
+                                            <DoubleAnimation Storyboard.TargetName="contentScale"
+                                                             Storyboard.TargetProperty="ScaleY"
+                                                             To="1.2" Duration="0:0:0.15"
+                                                             EasingFunction="{StaticResource ExponentialEaseOut}"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="contentScale"
+                                                             Storyboard.TargetProperty="ScaleX"
+                                                             To="1" Duration="0:0:0.15"
+                                                             EasingFunction="{StaticResource ExponentialEaseOut}"/>
+                                            <DoubleAnimation Storyboard.TargetName="contentScale"
+                                                             Storyboard.TargetProperty="ScaleY"
+                                                             To="1" Duration="0:0:0.15"
+                                                             EasingFunction="{StaticResource ExponentialEaseOut}"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 世界等级徽章样式 -->
+        <Style x:Key="WorldLevelBadgeStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource LightPurpleBrush}"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="MinWidth" Value="60"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsSelected}" Value="True">
+                    <Setter Property="Background" Value="#FFFFFF"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- DataGrid 样式 -->
+        <Style x:Key="ModernDataGridStyle" TargetType="DataGrid">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="RowHeight" Value="52"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="CanUserReorderColumns" Value="False"/>
+            <Setter Property="CanUserResizeColumns" Value="True"/>
+            <Setter Property="CanUserResizeRows" Value="False"/>
+            <Setter Property="CanUserSortColumns" Value="True"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGrid">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{StaticResource BorderGrayBrush}"
+                                BorderThickness="1"
+                                CornerRadius="6">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="52"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <!-- 表头背景 -->
+                                <Border Grid.Row="0"
+                                        Background="{StaticResource BackgroundGrayBrush}"
+                                        BorderBrush="{StaticResource BorderGrayBrush}"
+                                        BorderThickness="0,0,0,1"
+                                        CornerRadius="6,6,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <DataGridColumnHeadersPresenter Grid.Column="0"/>
+                                        <Border Grid.Column="1" Width="14" Background="{StaticResource BackgroundGrayBrush}"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- 内容区域 -->
+                                <Border Grid.Row="1" Background="Transparent">
+                                    <ScrollViewer x:Name="DG_ScrollViewer"
+                                                  Focusable="false"
+                                                  VerticalScrollBarVisibility="Auto"
+                                                  HorizontalScrollBarVisibility="Auto">
+                                        <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- DataGrid 列头样式 -->
+        <Style x:Key="DataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Height" Value="52"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource GrayTextBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <!-- DataGrid 行样式 -->
+        <Style x:Key="DataGridRowStyle" TargetType="DataGridRow">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#F3F4F6"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F0F9FF"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#E1F4FF"/>
+                </Trigger>
+                <DataTrigger Binding="{Binding IsMarked}" Value="True">
+                    <Setter Property="Background" Value="#F8F9FA"/>
+                    <Setter Property="Opacity" Value="0.8"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- 单元格内容样式 -->
+        <Style x:Key="DataGridCellStyle" TargetType="DataGridCell">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 模态框动画 -->
+        <Storyboard x:Shared="false" x:Key="ModalFadeInAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             From="0" To="1" Duration="0:0:0.15"
+                             EasingFunction="{StaticResource QuadEaseOut}"/>
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                             From="0.95" To="1" Duration="0:0:0.15"
+                             EasingFunction="{StaticResource QuadEaseOut}"/>
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                             From="0.95" To="1" Duration="0:0:0.15"
+                             EasingFunction="{StaticResource QuadEaseOut}"/>
+        </Storyboard>
+
+        <Storyboard x:Shared="false" x:Key="ModalFadeOutAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                             From="1" To="0" Duration="0:0:0.15"
+                             EasingFunction="{StaticResource QuadEaseOut}"/>
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                             From="1" To="0.95" Duration="0:0:0.15"
+                             EasingFunction="{StaticResource QuadEaseOut}"/>
+            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                             From="1" To="0.95" Duration="0:0:0.15"
+                             EasingFunction="{StaticResource QuadEaseOut}"/>
+        </Storyboard>
+    </Window.Resources>
+
+    <Grid Background="{StaticResource BackgroundGrayBrush}">
+        <!-- 主内容区 -->
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" MinHeight="63"/>
+                <RowDefinition Height="Auto" MinHeight="48"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- 标题区 -->
+            <Border Grid.Row="0" BorderBrush="{StaticResource BorderGrayBrush}" BorderThickness="0,0,0,1" 
+                    Padding="0,0,0,15" Margin="0,4,0,45" Grid.RowSpan="2">
+                <Grid>
+                    <!-- 文字内容 -->
+                    <StackPanel>
+                        <TextBlock Text="原神账号管理" FontSize="18" FontWeight="SemiBold" Foreground="#111827"/>
+                        <TextBlock Text="本地化管理敏感信息加密、添加账号、编辑、删除、分组、置顶、标记、登录功能。" 
+                                   FontSize="14" Foreground="{StaticResource LightGrayTextBrush}" Margin="0,5,0,0"/>
+                    </StackPanel>
+
+                    <!-- Toast容器 -->
+                    <Canvas>
+                        <Border x:Name="toastContainer" Width="300" Height="60" Background="White" CornerRadius="8"
+                                RenderTransformOrigin="0.5,0.5" BorderThickness="1" BorderBrush="#E5E7EB"
+                                Visibility="Collapsed" Canvas.Right="0" Canvas.Top="-7" Panel.ZIndex="100">
+                            <Border.RenderTransform>
+                                <TransformGroup>
+                                    <TranslateTransform x:Name="toastTranslate" Y="-70"/>
+                                    <ScaleTransform x:Name="toastScale" ScaleX="1" ScaleY="1"/>
+                                </TransformGroup>
+                            </Border.RenderTransform>
+
+                            <!-- 动画资源 -->
+                            <Border.Resources>
+                                <Storyboard x:Key="ShowToastAnimation">
+                                    <DoubleAnimation Storyboard.TargetName="toastTranslate" Storyboard.TargetProperty="Y"
+                                                     From="-70" To="0" Duration="0:0:0.3">
+                                        <DoubleAnimation.EasingFunction>
+                                            <StaticResource ResourceKey="CubicEaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetName="toastScale" Storyboard.TargetProperty="ScaleX"
+                                                     From="0.9" To="1" Duration="0:0:0.2">
+                                        <DoubleAnimation.EasingFunction>
+                                            <StaticResource ResourceKey="CubicEaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetName="toastScale" Storyboard.TargetProperty="ScaleY"
+                                                     From="0.9" To="1" Duration="0:0:0.2">
+                                        <DoubleAnimation.EasingFunction>
+                                            <StaticResource ResourceKey="CubicEaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="toastContainer" Storyboard.TargetProperty="Visibility">
+                                        <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static Visibility.Visible}"/>
+                                    </ObjectAnimationUsingKeyFrames>
+                                </Storyboard>
+
+                                <Storyboard x:Key="HideToastAnimation">
+                                    <DoubleAnimation Storyboard.TargetName="toastTranslate" Storyboard.TargetProperty="Y"
+                                                     From="0" To="-70" Duration="0:0:0.3">
+                                        <DoubleAnimation.EasingFunction>
+                                            <StaticResource ResourceKey="CubicEaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetName="toastScale" Storyboard.TargetProperty="ScaleX"
+                                                     From="1" To="0.9" Duration="0:0:0.2">
+                                        <DoubleAnimation.EasingFunction>
+                                            <StaticResource ResourceKey="CubicEaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <DoubleAnimation Storyboard.TargetName="toastScale" Storyboard.TargetProperty="ScaleY"
+                                                     From="1" To="0.9" Duration="0:0:0.2">
+                                        <DoubleAnimation.EasingFunction>
+                                            <StaticResource ResourceKey="CubicEaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="toastContainer" Storyboard.TargetProperty="Visibility"
+                                                                   BeginTime="0:0:0.3">
+                                        <DiscreteObjectKeyFrame KeyTime="0:0:0" Value="{x:Static Visibility.Collapsed}"/>
+                                    </ObjectAnimationUsingKeyFrames>
+                                </Storyboard>
+                            </Border.Resources>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock x:Name="toastIcon" Text="✅" FontSize="16" VerticalAlignment="Center" Margin="15,0,10,0"/>
+                                <TextBlock x:Name="toastText" Grid.Column="1" Text="" FontSize="14" Foreground="#111827"
+                                           VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,10,0"/>
+                                <Button x:Name="closeToastButton" Grid.Column="2" Style="{StaticResource XCloseButtonStyle}"
+                                        Click="CloseToastButton_Click" Margin="0,0,10,0">
+                                    <TextBlock Text="×" FontSize="20"/>
+                                </Button>
+                            </Grid>
+                        </Border>
+                    </Canvas>
+                </Grid>
+            </Border>
+
+            <!-- 搜索和按钮区 -->
+            <Grid Grid.Row="1" Margin="0,13,0,1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- 搜索框 -->
+                <Border x:Name="searchBox" Grid.Column="0" Height="34" VerticalAlignment="Center" CornerRadius="5" 
+                        Background="White" BorderThickness="1" BorderBrush="{StaticResource SearchBorderBrush}">
+                    <Grid HorizontalAlignment="Right" Width="187">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 放大镜图标 -->
+                        <Viewbox Grid.Column="0" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="12,0,8,0">
+                            <Path Data="M6.5,11 C8.7,11 10.5,9.2 10.5,7 C10.5,4.8 8.7,3 6.5,3 C4.3,3 2.5,4.8 2.5,7 C2.5,9.2 4.3,11 6.5,11 Z M9.5,9.5 L12.5,12.5"
+                                  Stroke="#FF666666" StrokeThickness="1" Fill="Transparent"/>
+                        </Viewbox>
+
+                        <!-- 搜索输入框 -->
+                        <Grid Grid.Column="1" Margin="0,0,8,0">
+                            <TextBlock x:Name="watermarkText" Text="输入 UID,昵称,账号 搜索..." VerticalAlignment="Center"
+                                       Foreground="#FF999999" Visibility="Visible"/>
+                            <TextBox x:Name="searchTextBox" VerticalAlignment="Center" BorderThickness="0" Background="Transparent"
+                                     FontSize="14" Padding="0" Foreground="#FF333333" TextChanged="SearchTextBox_TextChanged" 
+                                     GotFocus="SearchTextBox_GotFocus" LostFocus="SearchTextBox_LostFocus" Margin="-5,0,0,0" 
+                                     HorizontalAlignment="Left" Width="147"/>
+                        </Grid>
+
+                        <!-- 清除按钮 -->
+                        <Button x:Name="clearSearchButton" Grid.Column="2" Style="{StaticResource ClearButtonStyle}"
+                                Margin="0,0,10,0" Click="ClearSearchButton_Click" Visibility="Collapsed"/>
+                    </Grid>
+                </Border>
+
+                <!-- 当前分组名称标签 -->
+                <Border x:Name="currentGroupLabel" Grid.Column="1" Background="#E0F2FE" BorderBrush="#BAE6FD" BorderThickness="1"
+                        CornerRadius="5" Padding="12,6" Margin="8,0,0,0" Visibility="Visible" VerticalAlignment="Center"
+                        HorizontalAlignment="Left" ToolTipService.ShowDuration="10000">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 文件夹图标 -->
+                        <TextBlock Grid.Column="0" Text="📂" FontSize="14" Foreground="#0369A1" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                        
+                        <!-- 左侧：分组名 -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="leftText" Text="" FontSize="13" FontWeight="SemiBold" Foreground="#0369A1"
+                                       TextTrimming="CharacterEllipsis" MaxWidth="180" VerticalAlignment="Center"/>
+                            <TextBlock x:Name="groupSeparator" Text="" FontSize="13" Foreground="#BAE6FD" Margin="4,0,4,0"
+                                       Visibility="Collapsed" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="2" x:Name="rightText" Text="" FontSize="13" FontWeight="SemiBold"
+                                   Foreground="#0891B2" VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- 按钮区域 -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <!-- 添加分组按钮 -->
+                    <Button x:Name="addGroupButton" Style="{StaticResource GreenButtonStyle}" HorizontalAlignment="Left" 
+                            Width="110" Margin="0,0,10,0" Click="CreateGroupButton_Click" Visibility="Collapsed">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="+" FontSize="20" FontWeight="Bold" VerticalAlignment="Bottom" Margin="0,0,6,0"/>
+                            <TextBlock Text="添加分组" FontSize="14" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- 分组管理按钮 -->
+                    <Button x:Name="groupManagementButton" Style="{StaticResource GreenButtonStyle}" HorizontalAlignment="Left" 
+                            Width="110" Margin="0,0,10,0" Click="GroupManagementButton_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="分组管理" FontSize="14" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- 添加账号按钮 -->
+                    <Button x:Name="addAccountButton" Style="{StaticResource BlueButtonStyle}" HorizontalAlignment="Left" 
+                            Width="110" Margin="0,0,0,0" Click="AddAccountButton_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="+" FontSize="20" FontWeight="Bold" VerticalAlignment="Bottom" Margin="0,0,6,0"/>
+                            <TextBlock Text="添加账号" FontSize="14" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- 返回账号列表按钮 -->
+                    <Button x:Name="backToAccountListButton" Style="{StaticResource BlueButtonStyle}" HorizontalAlignment="Left" 
+                            Width="110" Margin="0,0,0,0" Click="BackToAccountListButton_Click" Visibility="Collapsed">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="返回账号列表" FontSize="14" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- 账号表格容器 -->
+            <Border Grid.Row="2" Background="White" BorderBrush="{StaticResource BorderGrayBrush}" BorderThickness="1"
+                    CornerRadius="6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,10,0,0">
+                <Grid>
+                    <!-- 无数据提示 -->
+                    <Border x:Name="noDataMessage" Visibility="Visible" Background="White" VerticalAlignment="Center"
+                            HorizontalAlignment="Center" Padding="40" Panel.ZIndex="1">
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                            <TextBlock x:Name="noDataIcon" FontSize="32" HorizontalAlignment="Center" Foreground="#9CA3AF" Margin="0,0,0,15"/>
+                            <TextBlock x:Name="noDataText" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource GrayTextBrush}"
+                                       HorizontalAlignment="Center" TextAlignment="Center"/>
+                            <TextBlock x:Name="noDataSubText" FontSize="14" Foreground="{StaticResource LightGrayTextBrush}"
+                                       Margin="0,5,0,15" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                            <Button x:Name="noDataBackButton" Style="{StaticResource BlueButtonStyle}" Width="110" Margin="0,5,0,0"
+                                    Click="NoDataBackButton_Click" Visibility="Collapsed">
+                                <TextBlock Text="返回账号列表" FontSize="14" VerticalAlignment="Center"/>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 分组管理界面 -->
+                    <Border x:Name="groupManagementMessage" Visibility="Collapsed" Background="White" 
+                            BorderBrush="{StaticResource BorderGrayBrush}" BorderThickness="1" CornerRadius="6"
+                            VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Panel.ZIndex="2">
+                        <Grid>
+                            <Border x:Name="noGroupMessage" Visibility="Visible" Background="White" VerticalAlignment="Center"
+                                    HorizontalAlignment="Center" Padding="40">
+                                <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                                    <TextBlock Text="📂" FontSize="32" HorizontalAlignment="Center" Foreground="#9CA3AF" Margin="0,0,0,15"/>
+                                    <TextBlock Text="当前没有分组" FontSize="18" FontWeight="SemiBold" Foreground="{StaticResource GrayTextBrush}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="伴生Lvchaxs&#10;点击右上角'添加分组'按钮创建第一个分组" FontSize="14" 
+                                               Foreground="{StaticResource LightGrayTextBrush}" Margin="0,5,0,15"
+                                               HorizontalAlignment="Center" TextAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                <ItemsControl x:Name="groupsItemsControl">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <VirtualizingStackPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="White" BorderBrush="#F3F4F6" BorderThickness="0,0,0,1" Padding="16,12">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Button Grid.Column="0" Width="20" Height="20" BorderThickness="1" BorderBrush="#D1D5DB"
+                                                            Background="Transparent" Tag="{Binding Id}" Click="GroupPinButton_Click"
+                                                            HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand" Margin="0,0,12,0">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border x:Name="border" Width="18" Height="18" BorderThickness="{TemplateBinding BorderThickness}"
+                                                                        BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" CornerRadius="2">
+                                                                    <TextBlock x:Name="pinIcon" Text="📌" FontSize="10" HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center" Visibility="Collapsed" Foreground="{StaticResource WarningOrangeBrush}"/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsPinned}" Value="True">
+                                                                        <Setter TargetName="pinIcon" Property="Visibility" Value="Visible"/>
+                                                                        <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource WarningOrangeBrush}"/>
+                                                                    </DataTrigger>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter TargetName="border" Property="BorderBrush" Value="#9CA3AF"/>
+                                                                        <Setter TargetName="border" Property="Background" Value="#F3F4F6"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
+
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" Foreground="#111827" Margin="0,0,0,0"/>
+                                                            <TextBlock Text="{Binding TagNote}" FontSize="14" Foreground="#3B82F6" Margin="4,0,0,0"
+                                                                       VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                                        </StackPanel>
+                                                        <TextBlock Text="{Binding DisplayText}" FontSize="12" Foreground="#6B7280" Margin="0,2,0,0">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground" Value="#6B7280"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding HasAccounts}" Value="False">
+                                                                            <Setter Property="Foreground" Value="#9CA3AF"/>
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding HasMarks}" Value="True">
+                                                                            <Setter Property="Foreground" Value="{StaticResource PurpleBrush}"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <Button x:Name="clearMarksButton" Content="清除标记" Style="{StaticResource OutlineButtonStyle}"
+                                                                Height="28" Padding="10,0" MinWidth="60" Margin="0,0,5,0" Tag="{Binding Id}"
+                                                                Click="ClearMarksButton_Click" Visibility="Collapsed"/>
+                                                        <Button Content="打开" Style="{StaticResource OutlineButtonStyle}" Height="28" Padding="10,0"
+                                                                MinWidth="60" Margin="0,0,5,0" Tag="{Binding Id}" Click="OpenGroupButton_Click"/>
+                                                        <Button Content="编辑" Style="{StaticResource EditButtonStyle}" Height="28" Padding="10,0"
+                                                                MinWidth="60" Margin="0,0,5,0" Tag="{Binding Id}" Click="EditGroupButton_Click"/>
+                                                        <Button Content="删除" Style="{StaticResource DangerButtonStyle}" Height="28" Padding="10,0"
+                                                                MinWidth="60" Tag="{Binding Id}" Click="DeleteGroupButton_Click"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </Border>
+
+                    <!-- DataGrid 表格 -->
+                    <DataGrid x:Name="accountsDataGrid" PreviewMouseWheel="DataGrid_PreviewMouseWheel" Visibility="Collapsed"
+                              Style="{StaticResource ModernDataGridStyle}" ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                              RowStyle="{StaticResource DataGridRowStyle}" CellStyle="{StaticResource DataGridCellStyle}"
+                              ItemsSource="{Binding}" AutoGeneratingColumn="DataGrid_AutoGeneratingColumn"
+                              SelectionChanged="DataGrid_SelectionChanged" AutoGenerateColumns="False"
+                              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Panel.ZIndex="0"
+                              CanUserSortColumns="True" Sorting="DataGrid_Sorting">
+                        <DataGrid.Columns>
+                            <!-- 标记列 -->
+                            <DataGridTemplateColumn x:Name="markColumn" Header="标记" Width="55" MinWidth="55" CanUserResize="False"
+                                                    IsReadOnly="True" SortMemberPath="IsMarked" CanUserSort="True">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="标记" VerticalAlignment="Center" Foreground="{StaticResource GrayTextBrush}" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button x:Name="markButton" Width="20" Height="20" BorderThickness="1" BorderBrush="#D1D5DB"
+                                                Background="Transparent" Click="MarkButton_Click" Tag="{Binding Id}"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="border" Width="18" Height="18" BorderThickness="{TemplateBinding BorderThickness}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" CornerRadius="2">
+                                                        <TextBlock x:Name="starIcon" Text="⭐" FontSize="20" HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center" Visibility="Collapsed" Foreground="{StaticResource WarningOrangeBrush}"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <DataTrigger Binding="{Binding IsMarked}" Value="True">
+                                                            <Setter TargetName="starIcon" Property="Visibility" Value="Visible"/>
+                                                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource WarningOrangeBrush}"/>
+                                                        </DataTrigger>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="border" Property="BorderBrush" Value="#9CA3AF"/>
+                                                            <Setter TargetName="border" Property="Background" Value="#F3F4F6"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- 置顶列 -->
+                            <DataGridTemplateColumn x:Name="pinColumn" Header="置顶" Width="55" MinWidth="55" CanUserResize="False"
+                                                    IsReadOnly="True" SortMemberPath="IsPinned" CanUserSort="True">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="置顶" VerticalAlignment="Center" Foreground="{StaticResource GrayTextBrush}" FontWeight="SemiBold"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button x:Name="pinButton" Width="20" Height="20" BorderThickness="1" BorderBrush="#D1D5DB"
+                                                Background="Transparent" Click="PinButton_Click" Tag="{Binding Id}"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="border" Width="18" Height="18" BorderThickness="{TemplateBinding BorderThickness}"
+                                                            BorderBrush="{TemplateBinding BorderBrush}" Background="{TemplateBinding Background}" CornerRadius="2">
+                                                        <TextBlock x:Name="pinIcon" Text="📌" FontSize="10" HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center" Visibility="Collapsed" Foreground="{StaticResource WarningOrangeBrush}"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <DataTrigger Binding="{Binding IsPinned}" Value="True">
+                                                            <Setter TargetName="pinIcon" Property="Visibility" Value="Visible"/>
+                                                            <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource WarningOrangeBrush}"/>
+                                                        </DataTrigger>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="border" Property="BorderBrush" Value="#9CA3AF"/>
+                                                            <Setter TargetName="border" Property="Background" Value="#F3F4F6"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- UID 列 -->
+                            <DataGridTemplateColumn Header="UID" Width="1*" MinWidth="120" IsReadOnly="True" 
+                                                    SortMemberPath="Uid" CanUserSort="True">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="UID" VerticalAlignment="Center" Foreground="{StaticResource GrayTextBrush}" FontWeight="SemiBold"/>
+                                            <StackPanel Margin="4,0,0,0" Orientation="Vertical">
+                                                <Path x:Name="uidAscArrow" Style="{StaticResource SortArrowStyle}" Data="M 1,5 L 4,1 L 7,5 Z"/>
+                                                <Path x:Name="uidDescArrow" Style="{StaticResource SortArrowStyle}" Data="M 1,1 L 4,5 L 7,1 Z"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid VerticalAlignment="Center">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding Uid}" VerticalAlignment="Center" Foreground="#111827"
+                                                       FontFamily="Consolas, 'Courier New', monospace" TextTrimming="CharacterEllipsis"/>
+                                            <Button Grid.Column="1" Style="{StaticResource CopyButtonStyle}" Tag="{Binding Uid}" Click="CopyButton_Click">
+                                                <TextBlock Text="📋" FontSize="12"/>
+                                            </Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- 等级列 -->
+                            <DataGridTemplateColumn Header="等级" Width="1*" MinWidth="90" IsReadOnly="True" 
+                                                    SortMemberPath="Level" CanUserSort="True">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="等级" VerticalAlignment="Center" Foreground="{StaticResource GrayTextBrush}" FontWeight="SemiBold"/>
+                                            <StackPanel Margin="4,0,0,0" Orientation="Vertical">
+                                                <Path x:Name="levelAscArrow" Style="{StaticResource SortArrowStyle}" Data="M 1,5 L 4,1 L 7,5 Z"/>
+                                                <Path x:Name="levelDescArrow" Style="{StaticResource SortArrowStyle}" Data="M 1,1 L 4,5 L 7,1 Z"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource WorldLevelBadgeStyle}" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                            <TextBlock>
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="Lv.{0} s{1}">
+                                                        <Binding Path="Level"/>
+                                                        <Binding Path="WorldLevel"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                            <Border.Resources>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontSize" Value="12"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource PurpleBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsSelected}" Value="True">
+                                                            <Setter Property="Foreground" Value="{StaticResource PurpleBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Resources>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- 昵称列 -->
+                            <DataGridTemplateColumn Header="昵称" Width="1.2*" MinWidth="125" IsReadOnly="True" 
+                                                    SortMemberPath="Nickname" CanUserSort="True">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="昵称" VerticalAlignment="Center" Foreground="{StaticResource GrayTextBrush}" FontWeight="SemiBold"/>
+                                            <StackPanel Margin="4,0,0,0" Orientation="Vertical">
+                                                <Path x:Name="nicknameAscArrow" Style="{StaticResource SortArrowStyle}" Data="M 1,5 L 4,1 L 7,5 Z"/>
+                                                <Path x:Name="nicknameDescArrow" Style="{StaticResource SortArrowStyle}" Data="M 1,1 L 4,5 L 7,1 Z"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Nickname}" VerticalAlignment="Center" Foreground="#111827" TextTrimming="CharacterEllipsis"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- 账号列 -->
+                            <DataGridTemplateColumn Header="账号" Width="1.5*" MinWidth="150" IsReadOnly="True" 
+                                                    SortMemberPath="Username" CanUserSort="True">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBlock Text="账号" VerticalAlignment="Center" Foreground="{StaticResource GrayTextBrush}" FontWeight="SemiBold"/>
+                                            <StackPanel Margin="4,0,0,0" Orientation="Vertical">
+                                                <Path x:Name="usernameAscArrow" Style="{StaticResource SortArrowStyle}" Data="M 1,5 L 4,1 L 7,5 Z"/>
+                                                <Path x:Name="usernameDescArrow" Style="{StaticResource SortArrowStyle}" Data="M 1,1 L 4,5 L 7,1 Z"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid VerticalAlignment="Center">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding MaskedUsername}" VerticalAlignment="Center" Foreground="#111827" TextTrimming="CharacterEllipsis"/>
+                                            <Button Grid.Column="1" Style="{StaticResource CopyButtonStyle}" Tag="账号:{Binding Username}" Click="CopyButton_Click">
+                                                <TextBlock Text="📋" FontSize="12"/>
+                                            </Button>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- 密码列 -->
+                            <DataGridTemplateColumn Header="密码" Width="1.5*" MinWidth="150" IsReadOnly="True" CanUserSort="False">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="密码" VerticalAlignment="Center" Foreground="{StaticResource GrayTextBrush}" FontWeight="SemiBold"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid VerticalAlignment="Center">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid VerticalAlignment="Center">
+                                                <TextBlock x:Name="passwordText" Text="{Binding Password}"
+                                                           Visibility="{Binding IsPasswordVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                           Foreground="#111827" FontFamily="Consolas, 'Courier New', monospace" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock x:Name="maskedPasswordText" Text="{Binding MaskedPassword}"
+                                                           Visibility="{Binding IsPasswordVisible, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                                                           Foreground="#111827" FontFamily="Consolas, 'Courier New', monospace" TextTrimming="CharacterEllipsis"/>
+                                            </Grid>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Button x:Name="togglePasswordButton" Style="{StaticResource CopyButtonStyle}" Tag="{Binding Id}"
+                                                        Click="TogglePasswordButton_Click">
+                                                    <Viewbox Width="12" Height="12">
+                                                        <Grid Width="12" Height="12">
+                                                            <Path x:Name="eyeOpenIcon" Visibility="{Binding IsPasswordVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                  Data="M6,2 C9,2 12,6 12,6 C12,6 9,10 6,10 C3,10 0,6 0,6 C0,6 3,2 6,2 Z M6,4 C4.9,4 4,4.9 4,6 C4,7.1 4.9,8 6,8 C7.1,8 8,7.1 8,6 C8,4.9 7.1,4 6,4 Z"
+                                                                  Stroke="#9CA3AF" StrokeThickness="1" Fill="Transparent"/>
+                                                            <Grid x:Name="eyeClosedIcon" Visibility="{Binding IsPasswordVisible, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                                                <Path Data="M6,2 C9,2 12,6 12,6 C12,6 9,10 6,10 C3,10 0,6 0,6 C0,6 3,2 6,2 Z M6,4 C4.9,4 4,4.9 4,6 C4,7.1 4.9,8 6,8 C7.1,8 8,7.1 8,6 C8,4.9 7.1,4 6,4 Z"
+                                                                      Stroke="#9CA3AF" StrokeThickness="1" Fill="Transparent"/>
+                                                                <Line X1="2" Y1="2" X2="10" Y2="10" Stroke="#9CA3AF" StrokeThickness="1"/>
+                                                            </Grid>
+                                                        </Grid>
+                                                    </Viewbox>
+                                                </Button>
+                                                <Button Style="{StaticResource CopyButtonStyle}" Margin="5,0,0,0" Tag="{Binding Password}" Click="CopyButton_Click">
+                                                    <TextBlock Text="📋" FontSize="12"/>
+                                                </Button>
+                                            </StackPanel>
+                                        </Grid>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <!-- 操作列 -->
+                            <DataGridTemplateColumn Header="操作" MinWidth="220" IsReadOnly="True" CanUserSort="False">
+                                <DataGridTemplateColumn.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="操作" VerticalAlignment="Center" Foreground="{StaticResource GrayTextBrush}" FontWeight="SemiBold"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.HeaderTemplate>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                                <Button Content="编辑" Style="{StaticResource EditButtonStyle}" Height="28" Padding="10,0"
+                                                        MinWidth="60" Margin="0,0,5,0" Tag="{Binding Id}" Click="EditAccountButton_Click"/>
+                                                <Button x:Name="loginAccountButton" Content="登录" Style="{StaticResource EditButtonStyle}"
+                                                        Height="28" Padding="10,0" MinWidth="60" Margin="0,0,5,0" Tag="{Binding Id}"
+                                                        Click="LoginAccountButton_Click"/>
+                                                <Button x:Name="removeFromGroupButton" Content="移出" Style="{StaticResource DangerButtonStyle}"
+                                                        Height="28" Padding="10,0" MinWidth="60" Tag="{Binding Id}"
+                                                        Click="RemoveFromGroupButton_Click" Visibility="Collapsed"/>
+                                                <Button x:Name="deleteAccountButton" Content="删除" Style="{StaticResource DangerButtonStyle}"
+                                                        Height="28" Padding="10,0" MinWidth="60" Tag="{Binding Id}" Click="DeleteAccountButton_Click"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Path=IsInGroupMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" Value="False">
+                                                <Setter TargetName="deleteAccountButton" Property="Visibility" Value="Visible"/>
+                                                <Setter TargetName="removeFromGroupButton" Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Path=IsInGroupMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}" Value="True">
+                                                <Setter TargetName="deleteAccountButton" Property="Visibility" Value="Collapsed"/>
+                                                <Setter TargetName="removeFromGroupButton" Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- 模态框遮罩层 -->
+        <Border x:Name="modalOverlay" Background="#000000" Opacity="0.5" Visibility="Collapsed" Panel.ZIndex="1000"/>
+
+        <!-- 账号删除确认模态框 -->
+        <Border x:Name="deleteModal" Width="450" Height="220" Background="White" CornerRadius="8" Panel.ZIndex="1001"
+                Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
+                RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+                <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+            </Border.RenderTransform>
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="3" Direction="315" Color="#1A000000" BlurRadius="10" Opacity="0.1"/>
+            </Border.Effect>
+            <Border.Resources>
+                <Storyboard x:Key="FadeInAnimation">
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="0.95" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="0.95" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                </Storyboard>
+                <Storyboard x:Key="FadeOutAnimation">
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="0.95" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="0.95" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                </Storyboard>
+            </Border.Resources>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="80"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" Background="{StaticResource BackgroundGrayBrush}" BorderBrush="{StaticResource BorderGrayBrush}"
+                        BorderThickness="0,0,0,1" CornerRadius="8,8,0,0" Padding="24,0">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="24" Height="24" Background="#FEE2E2" CornerRadius="4" Margin="0,0,12,0">
+                                <TextBlock Text="!" FontSize="14" FontWeight="Bold" Foreground="{StaticResource DangerRedBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="确认删除账号" FontSize="16" FontWeight="SemiBold" Foreground="#111827"/>
+                        </StackPanel>
+                        <Button x:Name="closeDeleteModalButton" Style="{StaticResource XCloseButtonStyle}" VerticalAlignment="Center"
+                                HorizontalAlignment="Right" Click="CloseDeleteModalButton_Click">
+                            <TextBlock Text="×" FontSize="20"/>
+                        </Button>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="1" Padding="24,16">
+                    <StackPanel>
+                        <TextBlock x:Name="deleteConfirmText" Text="确定要删除此账号吗？此操作无法撤销。" FontSize="14"
+                                   Foreground="{StaticResource GrayTextBrush}" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,8"/>
+                        <TextBlock Text="删除后，账号将被永久删除，无法恢复。" FontSize="13" Foreground="{StaticResource LightGrayTextBrush}" LineHeight="18"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="2" Background="{StaticResource BackgroundGrayBrush}" BorderBrush="{StaticResource BorderGrayBrush}"
+                        BorderThickness="0,1,0,0" CornerRadius="0,0,8,8">
+                    <Grid Margin="24,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button x:Name="cancelDeleteButton" Content="取消" Style="{StaticResource OutlineButtonStyle}" Height="36"
+                                    Padding="24,0" MinWidth="100" Click="CancelDeleteButton_Click"/>
+                            <Button x:Name="confirmDeleteButton" Content="确认删除" Style="{StaticResource DangerButtonStyle}" Height="36"
+                                    Padding="24,0" MinWidth="100" Margin="12,0,0,0" Click="ConfirmDeleteButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- 移出分组确认模态框 -->
+        <Border x:Name="removeFromGroupModal" Width="400" Height="220" Background="White" CornerRadius="8" Panel.ZIndex="1002"
+                Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
+                RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+                <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+            </Border.RenderTransform>
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="3" Direction="315" Color="#1A000000" BlurRadius="10" Opacity="0.1"/>
+            </Border.Effect>
+            <Border.Resources>
+                <Storyboard x:Key="FadeInAnimation">
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="0.95" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="0.95" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                </Storyboard>
+                <Storyboard x:Key="FadeOutAnimation">
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="0.95" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="0.95" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                </Storyboard>
+            </Border.Resources>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="80"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" Background="{StaticResource BackgroundGrayBrush}" BorderBrush="{StaticResource BorderGrayBrush}"
+                        BorderThickness="0,0,0,1" CornerRadius="8,8,0,0" Padding="24,0">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="24" Height="24" Background="#FEF3C7" CornerRadius="4" Margin="0,0,12,0">
+                                <TextBlock Text="!" FontSize="14" FontWeight="Bold" Foreground="#D97706"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock x:Name="removeFromGroupModalTitle" Text="确认移出账号" FontSize="16" FontWeight="SemiBold" Foreground="#111827"/>
+                        </StackPanel>
+                        <Button x:Name="closeRemoveFromGroupModalButton" Style="{StaticResource XCloseButtonStyle}" VerticalAlignment="Center"
+                                HorizontalAlignment="Right" Click="CloseRemoveFromGroupModalButton_Click">
+                            <TextBlock Text="×" FontSize="20"/>
+                        </Button>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="1" Padding="24,16">
+                    <StackPanel>
+                        <TextBlock x:Name="removeFromGroupConfirmText" Text="确定要将账号移出此分组吗？" FontSize="14"
+                                   Foreground="{StaticResource GrayTextBrush}" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,8"/>
+                        <TextBlock x:Name="removeFromGroupExtraText" Text="移出后，账号仍会保留在账号列表中，但不再属于此分组。"
+                                   FontSize="13" Foreground="{StaticResource LightGrayTextBrush}" LineHeight="18"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="2" Background="{StaticResource BackgroundGrayBrush}" BorderBrush="{StaticResource BorderGrayBrush}"
+                        BorderThickness="0,1,0,0" CornerRadius="0,0,8,8">
+                    <Grid Margin="24,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button x:Name="cancelRemoveFromGroupButton" Content="取消" Style="{StaticResource OutlineButtonStyle}" Height="36"
+                                    Padding="24,0" MinWidth="100" Click="CancelRemoveFromGroupButton_Click"/>
+                            <Button x:Name="confirmRemoveFromGroupButton" Content="确认移出" Style="{StaticResource DangerButtonStyle}" Height="36"
+                                    Padding="24,0" MinWidth="100" Margin="12,0,0,0" Click="ConfirmRemoveFromGroupButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- 分组删除确认模态框 -->
+        <Border x:Name="deleteGroupModal" Width="400" Height="220" Background="White" CornerRadius="8" Panel.ZIndex="1003"
+                Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
+                RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+                <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+            </Border.RenderTransform>
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="3" Direction="315" Color="#1A000000" BlurRadius="10" Opacity="0.1"/>
+            </Border.Effect>
+            <Border.Resources>
+                <Storyboard x:Key="FadeInAnimation">
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="0.95" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="0.95" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                </Storyboard>
+                <Storyboard x:Key="FadeOutAnimation">
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="0.95" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="0.95" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                </Storyboard>
+            </Border.Resources>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="80"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" Background="{StaticResource BackgroundGrayBrush}" BorderBrush="{StaticResource BorderGrayBrush}"
+                        BorderThickness="0,0,0,1" CornerRadius="8,8,0,0" Padding="24,0">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="24" Height="24" Background="#FEE2E2" CornerRadius="4" Margin="0,0,12,0">
+                                <TextBlock Text="!" FontSize="14" FontWeight="Bold" Foreground="{StaticResource DangerRedBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="确认删除分组" FontSize="16" FontWeight="SemiBold" Foreground="#111827"/>
+                        </StackPanel>
+                        <Button x:Name="closeDeleteGroupModalButton" Style="{StaticResource XCloseButtonStyle}" VerticalAlignment="Center"
+                                HorizontalAlignment="Right" Click="CloseDeleteGroupModalButton_Click">
+                            <TextBlock Text="×" FontSize="20"/>
+                        </Button>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="1" Padding="24,16">
+                    <StackPanel>
+                        <TextBlock x:Name="deleteGroupConfirmText" Text="确定要删除此分组吗？此操作无法撤销。" FontSize="14"
+                                   Foreground="{StaticResource GrayTextBrush}" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,8"/>
+                        <TextBlock Text="删除后，分组将被永久删除，但分组内的账号不会被删除。" FontSize="13" Foreground="{StaticResource LightGrayTextBrush}" LineHeight="18"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="2" Background="{StaticResource BackgroundGrayBrush}" BorderBrush="{StaticResource BorderGrayBrush}"
+                        BorderThickness="0,1,0,0" CornerRadius="0,0,8,8">
+                    <Grid Margin="24,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button x:Name="cancelDeleteGroupButton" Content="取消" Style="{StaticResource OutlineButtonStyle}" Height="36"
+                                    Padding="24,0" MinWidth="100" Click="CancelDeleteGroupButton_Click"/>
+                            <Button x:Name="confirmDeleteGroupButton" Content="确认删除" Style="{StaticResource DangerButtonStyle}" Height="36"
+                                    Padding="24,0" MinWidth="100" Margin="12,0,0,0" Click="ConfirmDeleteGroupButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- 清除标记确认模态框 -->
+        <Border x:Name="clearMarksModal" Width="400" Height="220" Background="White" CornerRadius="8" Panel.ZIndex="1004"
+                Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
+                RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+                <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+            </Border.RenderTransform>
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="3" Direction="315" Color="#1A000000" BlurRadius="10" Opacity="0.1"/>
+            </Border.Effect>
+            <Border.Resources>
+                <Storyboard x:Key="FadeInAnimation">
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="0.95" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="0.95" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                </Storyboard>
+                <Storyboard x:Key="FadeOutAnimation">
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="0.95" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="0.95" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                </Storyboard>
+            </Border.Resources>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="80"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0" Background="{StaticResource BackgroundGrayBrush}" BorderBrush="{StaticResource BorderGrayBrush}"
+                        BorderThickness="0,0,0,1" CornerRadius="8,8,0,0" Padding="24,0">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="24" Height="24" Background="#F3E8FF" CornerRadius="4" Margin="0,0,12,0">
+                                <TextBlock Text="!" FontSize="14" FontWeight="Bold" Foreground="{StaticResource PurpleBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="确认清除标记" FontSize="16" FontWeight="SemiBold" Foreground="#111827"/>
+                        </StackPanel>
+                        <Button x:Name="closeClearMarksModalButton" Style="{StaticResource XCloseButtonStyle}" VerticalAlignment="Center"
+                                HorizontalAlignment="Right" Click="CloseClearMarksModalButton_Click">
+                            <TextBlock Text="×" FontSize="20"/>
+                        </Button>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="1" Padding="24,16">
+                    <StackPanel>
+                        <TextBlock x:Name="clearMarksConfirmText" Text="确定要清除此分组中的所有标记吗？" FontSize="14"
+                                   Foreground="{StaticResource GrayTextBrush}" TextWrapping="Wrap" LineHeight="20" Margin="0,0,0,8"/>
+                        <TextBlock x:Name="clearMarksExtraText" Text="清除后，该分组中所有已标记的账号将恢复为未标记状态。"
+                                   FontSize="13" Foreground="{StaticResource LightGrayTextBrush}" LineHeight="18"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="2" Background="{StaticResource BackgroundGrayBrush}" BorderBrush="{StaticResource BorderGrayBrush}"
+                        BorderThickness="0,1,0,0" CornerRadius="0,0,8,8">
+                    <Grid Margin="24,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button x:Name="cancelClearMarksButton" Content="取消" Style="{StaticResource OutlineButtonStyle}" Height="36"
+                                    Padding="24,0" MinWidth="100" Click="CancelClearMarksButton_Click"/>
+                            <Button x:Name="confirmClearMarksButton" Content="确认清除" Style="{StaticResource BlueButtonStyle}" Height="36"
+                                    Padding="24,0" MinWidth="100" Margin="12,0,0,0" Click="ConfirmClearMarksButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- 登录确认模态框 -->
+        <Border x:Name="loginModal" Width="460" Height="400" Background="White" CornerRadius="8" Panel.ZIndex="1005"
+                Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
+                RenderTransformOrigin="0.5,0.5">
+            <Border.RenderTransform>
+                <ScaleTransform ScaleX="0.95" ScaleY="0.95"/>
+            </Border.RenderTransform>
+            <Border.Effect>
+                <DropShadowEffect ShadowDepth="3" Direction="315" Color="#1A000000" BlurRadius="10" Opacity="0.1"/>
+            </Border.Effect>
+            <Border.Resources>
+                <Storyboard x:Key="FadeInAnimation">
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="0.95" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="0.95" To="1" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                </Storyboard>
+                <Storyboard x:Key="FadeOutAnimation">
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="0.95" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="0.95" Duration="0:0:0.15" EasingFunction="{StaticResource QuadEaseOut}"/>
+                </Storyboard>
+            </Border.Resources>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="50"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- 标题区 -->
+                <Border Grid.Row="0" Background="{StaticResource BackgroundGrayBrush}" BorderBrush="{StaticResource BorderGrayBrush}"
+                        BorderThickness="0,0,0,1" CornerRadius="8,8,0,0" Padding="24,0">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="24" Height="24" Background="#E0F2FE" CornerRadius="4" Margin="0,0,12,0">
+                                <TextBlock Text="🎮" FontSize="14" FontWeight="Bold" Foreground="#0369A1"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock x:Name="loginModalTitle" Text="确认登录" FontSize="16" FontWeight="SemiBold" Foreground="#111827"/>
+                        </StackPanel>
+                        <Button x:Name="closeLoginModalButton" Style="{StaticResource XCloseButtonStyle}" VerticalAlignment="Center"
+                                HorizontalAlignment="Right" Click="CloseLoginModalButton_Click">
+                            <TextBlock Text="×" FontSize="20"/>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- 确认文本 -->
+                <Border Grid.Row="1" Padding="24,20,24,8">
+                    <TextBlock x:Name="loginConfirmText" Text="确定要登录此账号到游戏中吗？" FontSize="14"
+                               Foreground="{StaticResource GrayTextBrush}" TextWrapping="Wrap" LineHeight="20"/>
+                </Border>
+
+                <!-- 功能说明 -->
+                <Border Grid.Row="2" Padding="24,0,24,8">
+                    <TextBlock Text="基于图像识别自动登录账号，需要管理员权限才能使用登录功能。" FontSize="13"
+                               Foreground="{StaticResource LightGrayTextBrush}" LineHeight="18"/>
+                </Border>
+
+                <!-- 警告提示 -->
+                <Border Grid.Row="3" Margin="24,4,24,0" Background="#FEF3C7" BorderBrush="#FCD34D" BorderThickness="1"
+                        CornerRadius="6" Padding="12,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="⚠" FontSize="14" FontWeight="Bold" Foreground="#D97706" VerticalAlignment="Top" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="1" Text="登录过程中请不要进行任何鼠标或键盘操作等待登录完成结束" FontSize="13"
+                                   Foreground="#92400E" FontWeight="SemiBold" TextWrapping="Wrap" LineHeight="18"/>
+                    </Grid>
+                </Border>
+
+                <!-- 状态检查区域 -->
+                <Border Grid.Row="4" Margin="24,8,24,4" Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1"
+                        CornerRadius="6" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="状态检查" FontSize="13" FontWeight="SemiBold" Foreground="#374151" Margin="0,0,0,12"/>
+                        <Grid Margin="0,0,0,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="管理员权限：" FontSize="13" Foreground="{StaticResource GrayTextBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock x:Name="adminStatusText" Text="检查中..." FontSize="13" FontWeight="SemiBold"
+                                           Foreground="#F97316" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="游戏状态：" FontSize="13" Foreground="{StaticResource GrayTextBrush}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock x:Name="gameStatusText" Text="检查中..." FontSize="13" FontWeight="SemiBold"
+                                           Foreground="#F97316" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 游戏路径设置 -->
+                <Border Grid.Row="5" Margin="24,4,24,8" Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="1"
+                        CornerRadius="6" Padding="10,6" Height="40">
+                    <Grid VerticalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="路径：" FontSize="12" FontWeight="SemiBold" Foreground="#374151"
+                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <Border Grid.Column="1" Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="4"
+                                VerticalAlignment="Center" Padding="6,3" Margin="0,0,8,0" Height="26">
+                            <TextBlock x:Name="gamePathText" Text="未设置游戏路径" FontSize="11" Foreground="#6B7280"
+                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                        </Border>
+                        <Button x:Name="browseGamePathButton" Grid.Column="2" Content="浏览" Style="{StaticResource OutlineButtonStyle}"
+                                Height="26" Padding="8,0" MinWidth="50" VerticalAlignment="Center" Click="BrowseGamePathButton_Click"/>
+                    </Grid>
+                </Border>
+
+                <!-- 按钮区 -->
+                <Border Grid.Row="6" Background="{StaticResource BackgroundGrayBrush}" BorderBrush="{StaticResource BorderGrayBrush}"
+                        BorderThickness="0,1,0,0" CornerRadius="0,0,8,8">
+                    <Grid Margin="24,14">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" x:Name="loginStatusHint" Text="测试阶段" FontSize="13"
+                                   Foreground="#6B7280" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <Button x:Name="cancelLoginButton" Content="取消" Style="{StaticResource OutlineButtonStyle}" Height="36"
+                                    Padding="24,0" MinWidth="100" Click="CancelLoginButton_Click"/>
+                            <Button x:Name="confirmLoginButton" Content="确认登录" Style="{StaticResource BlueButtonStyle}" Height="36"
+                                    Padding="24,0" MinWidth="100" Margin="12,0,0,0" Click="ConfirmLoginButton_Click"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
